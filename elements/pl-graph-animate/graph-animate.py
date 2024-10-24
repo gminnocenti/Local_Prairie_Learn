@@ -315,6 +315,66 @@ def generate_frames_dfs_from_matrix(matrix, start_node, show_steps, show_weights
 
     return frames
 
+def generate_frames_dijkstra_from_matrix(matrix, start_node, show_steps, show_weights,directed, size="5,5"):
+    if isinstance(matrix, np.ndarray):
+        if directed=="True":
+            G = nx.from_numpy_array(matrix, create_using=nx.DiGraph())
+        else:
+            G = nx.from_numpy_array(matrix)
+    else:
+        G = matrix
+
+    A = nx.nx_agraph.to_agraph(G)
+
+    shortest_paths = nx.single_source_dijkstra_path_length(G, start_node)
+    predecessors = nx.single_source_dijkstra_path(G, start_node)
+
+    frames = []
+    visited_nodes = set()
+    visited_edges = set()
+
+    step_count = 0  # Keep track of step count to reduce number of frames
+    for target_node in shortest_paths.keys():
+        step_count += 1
+        if step_count % 2 != 0:  # Only capture every second step
+            continue  # Skip this step to reduce frame count
+
+        A_temp = A.copy()
+        path = predecessors[target_node]
+        visited_nodes.update(path)
+        for node in visited_nodes:
+            A_temp.get_node(node).attr['color'] = 'red'
+            A_temp.get_node(node).attr['style'] = 'filled'
+            A_temp.get_node(node).attr['fillcolor'] = 'red'
+
+        for i in range(len(path) - 1):
+            edge = (path[i], path[i + 1])
+            visited_edges.add(edge)
+            A_temp.get_edge(edge[0], edge[1]).attr['color'] = 'blue'
+            A_temp.get_edge(edge[0], edge[1]).attr['penwidth'] = 2.5
+
+        if show_steps=="True":
+            A_temp.graph_attr['label'] = f"Target Node {target_node}: Shortest Path (Dijkstra)"
+            A_temp.graph_attr['labelloc'] = 'top'
+        else:
+            pass
+
+        if show_weights=="True":
+            for u, v, data in G.edges(data=True):
+                weight = data.get('weight', 1.0)
+                A_temp.get_edge(u, v).attr['label'] = str(weight)
+        else:
+            pass
+
+        A_temp.graph_attr['size'] = size
+        A_temp.graph_attr['dpi'] = "300"
+
+        temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        A_temp.draw(temp_file.name, format="png", prog="dot")
+        frames.append(temp_file.name)
+
+    return frames
+
 """THIS SECTION CONTAINS THE FUNCTIONS TO CREATE A VIDEO FROM A DICTIOANRY OF DOTTY COMMANDS"""
 def create_graph_frame_dotty(dot_commands_dict,size="5,5"):
     frames = []
@@ -375,6 +435,10 @@ def render(element_html: str, data: pl.QuestionData) -> str:
             #G = nx.from_numpy_array(matrix, create_using=nx.DiGraph() if pl.get_boolean_attrib(element, "directed", DIRECTED_DEFAULT) else nx.Graph())
             #frames = generate_frames_bfs(G, start_node,show_steps,show_weights)
             frames=generate_frames_bfs_from_matrix(matrix, start_node,show_steps,show_weights,directed_graph)
+        elif algorithm == "dijkstra":
+            #G = nx.from_numpy_array(matrix, create_using=nx.DiGraph() if pl.get_boolean_attrib(element, "directed", DIRECTED_DEFAULT) else nx.Graph())
+            #frames = generate_frames_bfs(G, start_node,show_steps,show_weights)
+            frames=generate_frames_dijkstra_from_matrix(matrix, start_node,show_steps,show_weights,directed_graph)
 
         else:
             raise ValueError(f"Unsupported algorithm: {algorithm}")
