@@ -12,64 +12,121 @@ import base64
 # Default parameters
 ENGINE_DEFAULT = "dot"
 PARAMS_TYPE_DEFAULT = "adjacency-matrix"
-DIRECTED_DEFAULT = False
+DIRECTED_DEFAULT = "False"
 DURATION_FRAME_DEFAULT = 2
 ALGORITHM_DEFAULT = "dfs"
-SHOW_STEPS_DEFAULT=True
-SHOW_WEIGHTS_DEFAULT=False
+SHOW_STEPS_DEFAULT="True"
+SHOW_WEIGHTS_DEFAULT="False"
 
 
 """THIS SECTION CONTAINS THE FUNCTIONS TO GENERATE VIDEO FROM A MATRIX"""
 
-def generate_frames_dfs(graph, start_node,show_steps,show_weights):
+'''def generate_frames_dfs(graph, start_node, show_steps, show_weights):
     frames = []
     visited = set()
 
-    def dfs(node, depth=0):
+    def dfs(node, depth=0, previous_node=None):
         if node in visited:
             return
         visited.add(node)
-        # Create frame at each visit
-        frames.append(create_graph_frame_matrix(graph, visited, node, depth,show_steps,show_weights))
+        # Create frame at each visit using the DFS frame creation function
+        frames.append(create_graph_frame_dfs(graph, visited, node, previous_node, depth, show_steps, show_weights))
         for neighbor in graph.neighbors(node):
-            dfs(neighbor, depth + 1)
+            dfs(neighbor, depth + 1, node)
 
     dfs(start_node)
     return frames
-
-
-
-
-
-def generate_frames_bfs(graph, start_node,show_steps,show_weights):
+def generate_frames_bfs(graph, start_node, show_steps, show_weights):
     frames = []
     visited = set()
     queue = [start_node]
     depth = 0
-    while queue:
-        current = queue.pop(0)
-        if current not in visited:
-            visited.add(current)
-            # Create frame at each visit
-            frames.append(create_graph_frame_matrix(graph, visited, current, depth,show_steps,show_weights))
-            depth += 1
-            queue.extend([neighbor for neighbor in graph.neighbors(current) if neighbor not in visited])
-    return frames
 
-def generate_frames_bfs(graph, start_node,show_steps,show_weights):
-    frames = []
-    visited = set()
-    queue = [start_node]
-    depth = 0
     while queue:
         current = queue.pop(0)
         if current not in visited:
             visited.add(current)
-            # Create frame at each visit
-            frames.append(create_graph_frame_matrix(graph, visited, current, depth,show_steps,show_weights))
+            # Create frame at each visit using the BFS frame creation function
+            frames.append(create_graph_frame_bfs(graph, visited, current, depth, show_steps, show_weights))
             depth += 1
             queue.extend([neighbor for neighbor in graph.neighbors(current) if neighbor not in visited])
-    return frames
+    return frames'''
+
+'''
+def create_graph_frame_dfs(graph, visited_nodes, current_node, previous_node, depth, show_steps, show_weights, size="5,5"):
+    A = nx.nx_agraph.to_agraph(graph)
+
+    # Set node attributes to color visited nodes and current node
+    for node in graph.nodes():
+        if node in visited_nodes:
+            A.get_node(node).attr['color'] = 'black'
+            A.get_node(node).attr['style'] = 'filled'
+            A.get_node(node).attr['fillcolor'] = 'green'
+        else:
+            A.get_node(node).attr['color'] = 'yellow'
+            A.get_node(node).attr['penwidth'] = 2.5
+
+    # Color the edge from previous node to current node
+    if previous_node is not None and current_node is not None:
+        if graph.has_edge(previous_node, current_node):
+            A.get_edge(previous_node, current_node).attr['color'] = 'blue'
+
+    # Display weights if enabled
+    if show_weights:
+        for u, v, data in graph.edges(data=True):
+            weight = data.get('weight', 1.0)  # Default weight if not present
+            A.get_edge(u, v).attr['label'] = str(weight)
+
+    # Set title and size
+    if show_steps:
+        A.graph_attr['label'] = f"Step {depth}: Current Node {current_node} (DFS)"
+        A.graph_attr['labelloc'] = 'top'
+    A.graph_attr['size'] = size  
+    A.graph_attr['dpi'] = "300"
+
+    # Save the graph to a temporary file
+    temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+    A.draw(temp_file.name, format="png", prog="dot")
+
+    return temp_file.name
+
+def create_graph_frame_bfs(graph, visited_nodes, current_node, depth, show_steps, show_weights, size="5,5"):
+    A = nx.nx_agraph.to_agraph(graph)
+
+    # Set node attributes to color visited nodes and current node
+    for node in graph.nodes():
+        if node in visited_nodes:
+            A.get_node(node).attr['color'] = 'black'
+            A.get_node(node).attr['style'] = 'filled'
+            A.get_node(node).attr['fillcolor'] = 'green'
+        else:
+            A.get_node(node).attr['color'] = 'yellow'
+            A.get_node(node).attr['penwidth'] = 2.5
+
+    # In BFS, the current node can represent the node being processed at the current level
+    if current_node is not None:
+        A.get_node(current_node).attr['color'] = 'blue'
+        A.get_node(current_node).attr['style'] = 'filled'
+
+    # Display weights if enabled
+    if show_weights:
+        for u, v, data in graph.edges(data=True):
+            weight = data.get('weight', 1.0)
+            A.get_edge(u, v).attr['label'] = str(weight)
+
+    # Set title and size
+    if show_steps:
+        A.graph_attr['label'] = f"Step {depth}: Current Node {current_node} (BFS)"
+        A.graph_attr['labelloc'] = 'top'
+    A.graph_attr['size'] = size  
+    A.graph_attr['dpi'] = "300"
+
+    # Save the graph to a temporary file
+    temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+    A.draw(temp_file.name, format="png", prog="dot")
+
+    return temp_file.name
+
 
 def create_graph_frame_matrix(graph, visited_nodes, current_node, depth, show_steps,show_weights,size="5,5"):
     # Create a pygraphviz AGraph object from the NetworkX graph
@@ -120,8 +177,143 @@ def create_graph_frame_matrix(graph, visited_nodes, current_node, depth, show_st
     temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
     A.draw(temp_file.name, format="png", prog="dot")  # Use 'dot' or another layout engine like 'circo', 'neato'
 
-    return temp_file.name 
+    return temp_file.name '''
+"""THIS SECTION CONTAINS THE FUNCTIONS TO GENERATE VIDEO FROM A MATRIX"""
 
+def generate_frames_bfs_from_matrix(matrix, start_node, show_steps, show_weights,directed, size="5,5"):
+    # If matrix is passed, convert to a graph using networkx
+    if isinstance(matrix, np.ndarray):  # Check if the input is still a matrix
+        #G = nx.from_numpy_array(matrix)
+        if directed=="True":
+            G = nx.from_numpy_array(matrix, create_using=nx.DiGraph())  # Use DiGraph for directed graphs
+        else:
+            G = nx.from_numpy_array(matrix)
+    else:
+        G = matrix  # If it's already a graph, just use it directly
+
+    # Convert the NetworkX graph to a PyGraphviz graph
+    A = nx.nx_agraph.to_agraph(G)
+
+    # Get BFS traversal order
+    bfs_edges = list(nx.bfs_edges(G, source=start_node))  # List of edges traversed in BFS
+    bfs_nodes = list(nx.bfs_tree(G, source=start_node).nodes)  # List of nodes in BFS order
+
+    # List to store frames for the animation
+    frames = []
+
+    # Create the animation by incrementally highlighting nodes and edges
+    for i in range(1, len(bfs_nodes) + 1):
+        # Create a new AGraph object for each frame
+        A_temp = A.copy()
+
+        # Highlight nodes in BFS order
+        nodes_to_highlight = bfs_nodes[:i]
+        for node in nodes_to_highlight:
+            A_temp.get_node(node).attr['color'] = 'red'
+            A_temp.get_node(node).attr['style'] = 'filled'
+            A_temp.get_node(node).attr['fillcolor'] = 'red'
+
+        # Highlight edges in BFS order
+        edges_to_highlight = bfs_edges[:i-1]  # Highlight edges based on BFS progression
+        for edge in edges_to_highlight:
+            A_temp.get_edge(edge[0], edge[1]).attr['color'] = 'blue'
+            A_temp.get_edge(edge[0], edge[1]).attr['penwidth'] = 2.5
+
+        # Optionally set the graph title to indicate the current step and node
+        if show_steps=="True":
+            A_temp.graph_attr['label'] = f"Step {i}: Current Node {bfs_nodes[i-1]} (BFS)"
+            A_temp.graph_attr['labelloc'] = 'top'
+        else:
+            pass
+
+        # Optionally display weights
+        if show_weights=="True":
+            for u, v, data in G.edges(data=True):
+                weight = data.get('weight', 1.0)  # Default weight if not present
+                A_temp.get_edge(u, v).attr['label'] = str(weight)
+        else:
+            pass
+
+        # Set the size of the graph image
+        A_temp.graph_attr['size'] = size
+        A_temp.graph_attr['dpi'] = "300"
+
+        # Save the graph to a temporary file
+        temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        A_temp.draw(temp_file.name, format="png", prog="dot")
+
+        # Add the temporary file path to the frames list
+        frames.append(temp_file.name)
+
+    return frames
+
+
+def generate_frames_dfs_from_matrix(matrix, start_node, show_steps, show_weights, directed,size="5,5"):
+    # If matrix is passed, convert to a graph using networkx
+    if isinstance(matrix, np.ndarray):  # Check if the input is still a matrix
+        #G = nx.from_numpy_array(matrix)
+        if directed=="True":
+            G = nx.from_numpy_array(matrix, create_using=nx.DiGraph())  # Use DiGraph for directed graphs
+        else:
+            G = nx.from_numpy_array(matrix)
+    else:
+        G = matrix  # If it's already a graph, just use it directly
+
+    # Convert the NetworkX graph to a PyGraphviz graph
+    A = nx.nx_agraph.to_agraph(G)
+
+    # Get DFS traversal order
+    dfs_edges = list(nx.dfs_edges(G, source=start_node))  # List of edges traversed in DFS
+    dfs_nodes = list(nx.dfs_preorder_nodes(G, source=start_node))  # List of nodes in DFS order
+
+    # List to store frames for the animation
+    frames = []
+
+    # Create the animation by incrementally highlighting nodes and edges
+    for i in range(1, len(dfs_nodes) + 1):
+        # Create a new AGraph object for each frame
+        A_temp = A.copy()
+
+        # Highlight nodes in DFS order
+        nodes_to_highlight = dfs_nodes[:i]
+        for node in nodes_to_highlight:
+            A_temp.get_node(node).attr['color'] = 'red'
+            A_temp.get_node(node).attr['style'] = 'filled'
+            A_temp.get_node(node).attr['fillcolor'] = 'red'
+
+        # Highlight edges in DFS order
+        edges_to_highlight = dfs_edges[:i-1]  # Highlight edges based on DFS progression
+        for edge in edges_to_highlight:
+            A_temp.get_edge(edge[0], edge[1]).attr['color'] = 'blue'
+            A_temp.get_edge(edge[0], edge[1]).attr['penwidth'] = 2.5
+
+        # Optionally set the graph title to indicate the current step and node
+        if show_steps=="True":
+            A_temp.graph_attr['label'] = f"Step {i}: Current Node {dfs_nodes[i-1]} (DFS)"
+            A_temp.graph_attr['labelloc'] = 'top'
+        else: 
+            pass
+
+        # Optionally display weights
+        if show_weights=="True":
+            for u, v, data in G.edges(data=True):
+                weight = data.get('weight', 1.0)  # Default weight if not present
+                A_temp.get_edge(u, v).attr['label'] = str(weight)
+        else:
+            pass
+
+        # Set the size of the graph image
+        A_temp.graph_attr['size'] = size
+        A_temp.graph_attr['dpi'] = "300"
+
+        # Save the graph to a temporary file
+        temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        A_temp.draw(temp_file.name, format="png", prog="dot")
+
+        # Add the temporary file path to the frames list
+        frames.append(temp_file.name)
+
+    return frames
 
 """THIS SECTION CONTAINS THE FUNCTIONS TO CREATE A VIDEO FROM A DICTIOANRY OF DOTTY COMMANDS"""
 def create_graph_frame_dotty(dot_commands_dict,size="5,5"):
@@ -167,7 +359,7 @@ def render(element_html: str, data: pl.QuestionData) -> str:
     frame_duration = float(pl.get_string_attrib(element, "frame-duration", DURATION_FRAME_DEFAULT))
     show_steps = pl.get_string_attrib(element, "show-steps", SHOW_STEPS_DEFAULT)
     show_weights = pl.get_string_attrib(element, "show-weights", SHOW_WEIGHTS_DEFAULT)
-
+    directed_graph=pl.get_string_attrib(element, "directed-graph", DIRECTED_DEFAULT)
     # Create video for input type adjacency-matrix
     if input_type==PARAMS_TYPE_DEFAULT:
         matrix = np.array(pl.from_json(data["params"][input_param_name]))
@@ -175,14 +367,19 @@ def render(element_html: str, data: pl.QuestionData) -> str:
 
         start_node = 0  # Assuming traversal starts at node 0
         if algorithm == "dfs":
-            G = nx.from_numpy_array(matrix, create_using=nx.DiGraph() if pl.get_boolean_attrib(element, "directed", DIRECTED_DEFAULT) else nx.Graph())
-            frames = generate_frames_dfs(G, start_node,show_steps,show_weights)
+            #G = nx.from_numpy_array(matrix, create_using=nx.DiGraph() if pl.get_boolean_attrib(element, "directed", DIRECTED_DEFAULT) else nx.Graph())
+            #G = create_weighted_graph(matrix)
+            #frames = generate_frames_dfs(G, start_node,show_steps,show_weights)
+            frames=generate_frames_dfs_from_matrix(matrix, start_node,show_steps,show_weights,directed_graph)
         elif algorithm == "bfs":
-            G = nx.from_numpy_array(matrix, create_using=nx.DiGraph() if pl.get_boolean_attrib(element, "directed", DIRECTED_DEFAULT) else nx.Graph())
-            frames = generate_frames_bfs(G, start_node,show_steps,show_weights)
+            #G = nx.from_numpy_array(matrix, create_using=nx.DiGraph() if pl.get_boolean_attrib(element, "directed", DIRECTED_DEFAULT) else nx.Graph())
+            #frames = generate_frames_bfs(G, start_node,show_steps,show_weights)
+            frames=generate_frames_bfs_from_matrix(matrix, start_node,show_steps,show_weights,directed_graph)
 
         else:
             raise ValueError(f"Unsupported algorithm: {algorithm}")
+    
+    
     # Create video for input type dotty
     elif input_type=="dotty":
         dot_commands_dict = pl.from_json(data["params"][input_param_name])
