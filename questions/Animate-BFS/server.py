@@ -9,4 +9,3 @@ def generate(data):
                          [0, 0, 1, 0, 0]])
 
     data["params"]["matrix"] = pl.to_json(mat)
-
