@@ -8,6 +8,8 @@ import os
 import tempfile
 import lxml
 import base64
+import random
+from networkx.drawing.nx_agraph import to_agraph
 
 # Default parameters
 ENGINE_DEFAULT = "dot"
@@ -17,7 +19,7 @@ DURATION_FRAME_DEFAULT = 2
 ALGORITHM_DEFAULT = "dfs"
 SHOW_STEPS_DEFAULT="True"
 SHOW_WEIGHTS_DEFAULT="False"
-
+ERROR_CHANCE_DEFAULT="False"
 
 """THIS SECTION CONTAINS THE FUNCTIONS TO GENERATE VIDEO FROM A MATRIX"""
 
@@ -247,7 +249,7 @@ def generate_frames_bfs_from_matrix(matrix, start_node, show_steps, show_weights
 
     return frames
 
-
+"""
 def generate_frames_dfs_from_matrix(matrix, start_node, show_steps, show_weights, directed,size="5,5"):
     # If matrix is passed, convert to a graph using networkx
     if isinstance(matrix, np.ndarray):  # Check if the input is still a matrix
@@ -314,34 +316,167 @@ def generate_frames_dfs_from_matrix(matrix, start_node, show_steps, show_weights
         frames.append(temp_file.name)
 
     return frames
+"""
 
-def generate_frames_dijkstra_from_matrix(matrix, start_node, show_steps, show_weights,directed, size="5,5"):
+def generate_frames_dfs_from_matrix(matrix, start_node, show_steps, show_weights, directed, error_chance,size="5,5"):
+    # If matrix is passed, convert to a graph using networkx
+    if isinstance(matrix, np.ndarray):  # Check if the input is still a matrix
+        if directed == "True":
+            G = nx.from_numpy_array(matrix, create_using=nx.DiGraph())  # Use DiGraph for directed graphs
+        else:
+            G = nx.from_numpy_array(matrix)
+    else:
+        G = matrix  # If it's already a graph, just use it directly
+
+    # Convert the NetworkX graph to a PyGraphviz graph
+    A = nx.nx_agraph.to_agraph(G)
+
+    # Get DFS traversal order using a custom DFS to introduce errors
+    dfs_nodes, dfs_edges = custom_dfs_with_errors(G, start_node, error_chance)
+
+    print(f"DFS Traversal Nodes (with error_chance={error_chance}): {dfs_nodes}")  # Debug output
+
+    # List to store frames for the animation
+    frames = []
+
+    # Create the animation by incrementally highlighting nodes and edges
+    for i in range(1, len(dfs_nodes) + 1):
+        # Create a new AGraph object for each frame
+        A_temp = A.copy()
+
+        # Highlight nodes in DFS order
+        nodes_to_highlight = dfs_nodes[:i]
+        for node in nodes_to_highlight:
+            A_temp.get_node(node).attr['color'] = 'red'
+            A_temp.get_node(node).attr['style'] = 'filled'
+            A_temp.get_node(node).attr['fillcolor'] = 'red'
+
+        # Highlight edges in DFS order
+        edges_to_highlight = dfs_edges[:i-1]  # Highlight edges based on DFS progression
+        for edge in edges_to_highlight:
+            A_temp.get_edge(edge[0], edge[1]).attr['color'] = 'blue'
+            A_temp.get_edge(edge[0], edge[1]).attr['penwidth'] = 2.5
+
+        # Optionally set the graph title to indicate the current step and node
+        if show_steps == "True":
+            A_temp.graph_attr['label'] = f"Step {i}: Current Node {dfs_nodes[i-1]} (DFS)"
+            A_temp.graph_attr['labelloc'] = 'top'
+
+        # Optionally display weights
+        if show_weights == "True":
+            for u, v, data in G.edges(data=True):
+                weight = data.get('weight', 1.0)  # Default weight if not present
+                A_temp.get_edge(u, v).attr['label'] = str(weight)
+
+        # Set the size of the graph image
+        A_temp.graph_attr['size'] = size
+        A_temp.graph_attr['dpi'] = "300"
+
+        # Save the graph to a temporary file
+        temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        A_temp.draw(temp_file.name, format="png", prog="dot")
+
+        # Add the temporary file path to the frames list
+        frames.append(temp_file.name)
+
+    return frames
+
+def custom_dfs_with_errors(G, start_node, error_chance):
+    """
+    Custom DFS implementation that introduces errors during traversal.
+    If error_chance is 'True', errors are introduced by modifying the traversal path.
+    """
+    visited = set()
+    dfs_nodes = []
+    dfs_edges = []
+
+    def dfs(node):
+        visited.add(node)
+        dfs_nodes.append(node)
+        # Get all neighbors
+        neighbors = list(G.neighbors(node))
+        
+        # If error_chance is enabled, introduce errors by shuffling neighbors, skipping nodes, or revisiting nodes
+        if error_chance == "True":
+            if random.random() < 0.1:  # 50% chance to skip a node for testing
+                # Randomly skip a node and continue traversal
+                skipped_node = random.choice(neighbors)
+                print(f"Skipping Node: {skipped_node}")
+                neighbors.remove(skipped_node)  # Remove the skipped node from neighbors
+
+            if random.random() < 0.5:  # 50% chance to force backtracking to a previous node
+                if len(visited) > 1:  # Can only backtrack if we've already visited at least one node
+                    backtrack_node = random.choice(list(visited))
+                    print(f"Backtracking to Node: {backtrack_node}")
+                    neighbors = [backtrack_node]  # Force backtrack to a previously visited node
+
+            random.shuffle(neighbors)  # Shuffle neighbors to introduce randomness in traversal order
+
+        # Explore all neighbors
+        for neighbor in neighbors:
+            if neighbor not in visited:
+                dfs_edges.append((node, neighbor))  # Record the edge visited
+                dfs(neighbor)  # Recur to the neighbor
+
+    # Start DFS traversal from the start_node
+    dfs(start_node)
+
+    return dfs_nodes, dfs_edges
+def generate_frames_dijkstra_from_matrix(matrix, start_node, show_steps, show_weights, directed, error_chance, size="5,5"):
+    # Generate graph from matrix
     if isinstance(matrix, np.ndarray):
-        if directed=="True":
+        if directed == "True":
             G = nx.from_numpy_array(matrix, create_using=nx.DiGraph())
         else:
             G = nx.from_numpy_array(matrix)
     else:
         G = matrix
 
+    # Set error chance probability
+    error_chance_prob = 1.0 if error_chance == "True" else 0.0
+
+    # Initialize AGraph object for visualization
     A = nx.nx_agraph.to_agraph(G)
 
+    # Run Dijkstra's algorithm to get shortest paths and predecessors
     shortest_paths = nx.single_source_dijkstra_path_length(G, start_node)
     predecessors = nx.single_source_dijkstra_path(G, start_node)
 
-    frames = []
-    visited_nodes = set()
-    visited_edges = set()
+    frames = []           # List to store frames
+    visited_nodes = set() # Track visited nodes
+    visited_edges = set() # Track visited edges
 
-    step_count = 0  # Keep track of step count to reduce number of frames
+    # Step 0: Add initial frame with no nodes or edges colored
+    step_count = 0        # Track step count
+
+    # Loop through each target node in shortest paths
     for target_node in shortest_paths.keys():
         step_count += 1
-        if step_count % 2 != 0:  # Only capture every second step
-            continue  # Skip this step to reduce frame count
 
         A_temp = A.copy()
-        path = predecessors[target_node]
+
+        # Determine the correct path to the target node
+        correct_path = predecessors[target_node]
+
+        # Introduce a traversal error based on `error_chance`
+        if random.random() < error_chance_prob:
+            # Choose a random wrong path
+            wrong_path = random.choice(list(G.nodes))  # Choose random node as an incorrect path
+            wrong_path = predecessors.get(wrong_path, correct_path)  # Get some path, which might be incorrect
+
+            # You can introduce an error by manually changing the path like this:
+            if len(wrong_path) > 1:
+                wrong_path = wrong_path[::-1]  # Reversing path to make it wrong (as an example)
+
+            # Make sure the path is different from the correct path
+            path = wrong_path
+        else:
+            # No error, use the correct path
+            path = correct_path
+
         visited_nodes.update(path)
+
+        # Color nodes and edges in path up to the current target
         for node in visited_nodes:
             A_temp.get_node(node).attr['color'] = 'red'
             A_temp.get_node(node).attr['style'] = 'filled'
@@ -353,22 +488,21 @@ def generate_frames_dijkstra_from_matrix(matrix, start_node, show_steps, show_we
             A_temp.get_edge(edge[0], edge[1]).attr['color'] = 'blue'
             A_temp.get_edge(edge[0], edge[1]).attr['penwidth'] = 2.5
 
-        if show_steps=="True":
-            A_temp.graph_attr['label'] = f"Target Node {target_node}: Shortest Path (Dijkstra)"
+        # Set graph attributes for steps and weights
+        if show_steps == "True":
+            A_temp.graph_attr['label'] = f"Shortest Route to Node: {target_node}"
             A_temp.graph_attr['labelloc'] = 'top'
-        else:
-            pass
 
-        if show_weights=="True":
+        if show_weights == "True":
             for u, v, data in G.edges(data=True):
                 weight = data.get('weight', 1.0)
                 A_temp.get_edge(u, v).attr['label'] = str(weight)
-        else:
-            pass
 
+        # Set image size and DPI
         A_temp.graph_attr['size'] = size
         A_temp.graph_attr['dpi'] = "300"
 
+        # Generate image and save temporary file
         temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
         A_temp.draw(temp_file.name, format="png", prog="dot")
         frames.append(temp_file.name)
@@ -420,6 +554,7 @@ def render(element_html: str, data: pl.QuestionData) -> str:
     show_steps = pl.get_string_attrib(element, "show-steps", SHOW_STEPS_DEFAULT)
     show_weights = pl.get_string_attrib(element, "show-weights", SHOW_WEIGHTS_DEFAULT)
     directed_graph=pl.get_string_attrib(element, "directed-graph", DIRECTED_DEFAULT)
+    error_chance=pl.get_string_attrib(element, "error-chance", ERROR_CHANCE_DEFAULT)
     # Create video for input type adjacency-matrix
     if input_type==PARAMS_TYPE_DEFAULT:
         matrix = np.array(pl.from_json(data["params"][input_param_name]))
@@ -430,7 +565,7 @@ def render(element_html: str, data: pl.QuestionData) -> str:
             #G = nx.from_numpy_array(matrix, create_using=nx.DiGraph() if pl.get_boolean_attrib(element, "directed", DIRECTED_DEFAULT) else nx.Graph())
             #G = create_weighted_graph(matrix)
             #frames = generate_frames_dfs(G, start_node,show_steps,show_weights)
-            frames=generate_frames_dfs_from_matrix(matrix, start_node,show_steps,show_weights,directed_graph)
+            frames=generate_frames_dfs_from_matrix(matrix, start_node,show_steps,show_weights,directed_graph,error_chance)
         elif algorithm == "bfs":
             #G = nx.from_numpy_array(matrix, create_using=nx.DiGraph() if pl.get_boolean_attrib(element, "directed", DIRECTED_DEFAULT) else nx.Graph())
             #frames = generate_frames_bfs(G, start_node,show_steps,show_weights)
@@ -438,7 +573,7 @@ def render(element_html: str, data: pl.QuestionData) -> str:
         elif algorithm == "dijkstra":
             #G = nx.from_numpy_array(matrix, create_using=nx.DiGraph() if pl.get_boolean_attrib(element, "directed", DIRECTED_DEFAULT) else nx.Graph())
             #frames = generate_frames_bfs(G, start_node,show_steps,show_weights)
-            frames=generate_frames_dijkstra_from_matrix(matrix, start_node,show_steps,show_weights,directed_graph)
+            frames=generate_frames_dijkstra_from_matrix(matrix, start_node,show_steps,show_weights,directed_graph,error_chance)
 
         else:
             raise ValueError(f"Unsupported algorithm: {algorithm}")
