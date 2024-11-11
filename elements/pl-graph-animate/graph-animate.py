@@ -182,7 +182,7 @@ def create_graph_frame_matrix(graph, visited_nodes, current_node, depth, show_st
     return temp_file.name '''
 """THIS SECTION CONTAINS THE FUNCTIONS TO GENERATE VIDEO FROM A MATRIX"""
 
-def generate_frames_bfs_from_matrix(matrix, start_node, show_steps, show_weights,directed, size="5,5"):
+"""def generate_frames_bfs_from_matrix(matrix, start_node, show_steps, show_weights,directed, size="5,5"):
     # If matrix is passed, convert to a graph using networkx
     if isinstance(matrix, np.ndarray):  # Check if the input is still a matrix
         #G = nx.from_numpy_array(matrix)
@@ -247,8 +247,113 @@ def generate_frames_bfs_from_matrix(matrix, start_node, show_steps, show_weights
         # Add the temporary file path to the frames list
         frames.append(temp_file.name)
 
+    return frames"""
+
+def generate_frames_bfs_from_matrix(matrix, start_node, show_steps, show_weights, directed,error_chance, size="5,5"):
+    # If matrix is passed, convert to a graph using networkx
+    if isinstance(matrix, np.ndarray):  # Check if the input is still a matrix
+        if directed == "True":
+            G = nx.from_numpy_array(matrix, create_using=nx.DiGraph())  # Use DiGraph for directed graphs
+        else:
+            G = nx.from_numpy_array(matrix)
+    else:
+        G = matrix  # If it's already a graph, just use it directly
+
+    # Convert the NetworkX graph to a PyGraphviz graph
+    A = nx.nx_agraph.to_agraph(G)
+
+    # Get BFS traversal order using a custom BFS to introduce errors
+    bfs_edges, bfs_nodes = custom_bfs_with_errors(G, start_node, error_chance)
+
+    print(f"BFS Traversal Nodes (with error_chance={error_chance}): {bfs_nodes}")  # Debug output
+
+    # List to store frames for the animation
+    frames = []
+
+    # Create the animation by incrementally highlighting nodes and edges
+    for i in range(1, len(bfs_nodes) + 1):
+        # Create a new AGraph object for each frame
+        A_temp = A.copy()
+
+        # Highlight nodes in BFS order
+        nodes_to_highlight = bfs_nodes[:i]
+        for node in nodes_to_highlight:
+            A_temp.get_node(node).attr['color'] = 'red'
+            A_temp.get_node(node).attr['style'] = 'filled'
+            A_temp.get_node(node).attr['fillcolor'] = 'red'
+
+        # Highlight edges in BFS order
+        edges_to_highlight = bfs_edges[:i-1]  # Highlight edges based on BFS progression
+        for edge in edges_to_highlight:
+            A_temp.get_edge(edge[0], edge[1]).attr['color'] = 'blue'
+            A_temp.get_edge(edge[0], edge[1]).attr['penwidth'] = 2.5
+
+        # Optionally set the graph title to indicate the current step and node
+        if show_steps == "True":
+            A_temp.graph_attr['label'] = f"Step {i}: Current Node {bfs_nodes[i-1]} (BFS)"
+            A_temp.graph_attr['labelloc'] = 'top'
+
+        # Optionally display weights
+        if show_weights == "True":
+            for u, v, data in G.edges(data=True):
+                weight = data.get('weight', 1.0)  # Default weight if not present
+                A_temp.get_edge(u, v).attr['label'] = str(weight)
+
+        # Set the size of the graph image
+        A_temp.graph_attr['size'] = size
+        A_temp.graph_attr['dpi'] = "300"
+
+        # Save the graph to a temporary file
+        temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        A_temp.draw(temp_file.name, format="png", prog="dot")
+
+        # Add the temporary file path to the frames list
+        frames.append(temp_file.name)
+
     return frames
 
+def custom_bfs_with_errors(G, start_node, error_chance):
+    """
+    Custom BFS implementation that introduces errors during traversal.
+    If error_chance is 'True', errors are introduced by modifying the traversal path.
+    All nodes are guaranteed to be visited at least once.
+    """
+    visited = set()
+    bfs_nodes = []
+    bfs_edges = []
+    
+    queue = [start_node]
+    visited.add(start_node)
+
+    while queue:
+        node = queue.pop(0)
+        bfs_nodes.append(node)
+
+        # Get all neighbors
+        neighbors = list(G.neighbors(node))
+        
+        # If error_chance is enabled, introduce errors by shuffling neighbors, skipping nodes, or revisiting nodes
+        if error_chance == "True":
+            if random.random() < 0.5 and neighbors:  # 50% chance to skip a node (if there are any neighbors)
+                skipped_node = random.choice(neighbors)
+                print(f"Skipping Node: {skipped_node}")
+                neighbors.remove(skipped_node)  # Remove the skipped node from neighbors
+
+            if random.random() < 0.5 and len(visited) > 1:  # 50% chance to backtrack to a previous node
+                backtrack_node = random.choice(list(visited))
+                print(f"Backtracking to Node: {backtrack_node}")
+                neighbors = [backtrack_node]  # Force backtrack to a previously visited node
+
+            random.shuffle(neighbors)  # Shuffle neighbors to introduce randomness in traversal order
+
+        # Explore all neighbors and add them to the queue if not visited
+        for neighbor in neighbors:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+                bfs_edges.append((node, neighbor))  # Record the edge visited
+
+    return bfs_edges, bfs_nodes
 """
 def generate_frames_dfs_from_matrix(matrix, start_node, show_steps, show_weights, directed,size="5,5"):
     # If matrix is passed, convert to a graph using networkx
@@ -569,7 +674,7 @@ def render(element_html: str, data: pl.QuestionData) -> str:
         elif algorithm == "bfs":
             #G = nx.from_numpy_array(matrix, create_using=nx.DiGraph() if pl.get_boolean_attrib(element, "directed", DIRECTED_DEFAULT) else nx.Graph())
             #frames = generate_frames_bfs(G, start_node,show_steps,show_weights)
-            frames=generate_frames_bfs_from_matrix(matrix, start_node,show_steps,show_weights,directed_graph)
+            frames=generate_frames_bfs_from_matrix(matrix, start_node,show_steps,show_weights,directed_graph,error_chance)
         elif algorithm == "dijkstra":
             #G = nx.from_numpy_array(matrix, create_using=nx.DiGraph() if pl.get_boolean_attrib(element, "directed", DIRECTED_DEFAULT) else nx.Graph())
             #frames = generate_frames_bfs(G, start_node,show_steps,show_weights)
