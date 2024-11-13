@@ -23,231 +23,6 @@ ERROR_CHANCE_DEFAULT="False"
 
 """THIS SECTION CONTAINS THE FUNCTIONS TO GENERATE VIDEO FROM A MATRIX"""
 
-'''def generate_frames_dfs(graph, start_node, show_steps, show_weights):
-    frames = []
-    visited = set()
-
-    def dfs(node, depth=0, previous_node=None):
-        if node in visited:
-            return
-        visited.add(node)
-        # Create frame at each visit using the DFS frame creation function
-        frames.append(create_graph_frame_dfs(graph, visited, node, previous_node, depth, show_steps, show_weights))
-        for neighbor in graph.neighbors(node):
-            dfs(neighbor, depth + 1, node)
-
-    dfs(start_node)
-    return frames
-def generate_frames_bfs(graph, start_node, show_steps, show_weights):
-    frames = []
-    visited = set()
-    queue = [start_node]
-    depth = 0
-
-    while queue:
-        current = queue.pop(0)
-        if current not in visited:
-            visited.add(current)
-            # Create frame at each visit using the BFS frame creation function
-            frames.append(create_graph_frame_bfs(graph, visited, current, depth, show_steps, show_weights))
-            depth += 1
-            queue.extend([neighbor for neighbor in graph.neighbors(current) if neighbor not in visited])
-    return frames'''
-
-'''
-def create_graph_frame_dfs(graph, visited_nodes, current_node, previous_node, depth, show_steps, show_weights, size="5,5"):
-    A = nx.nx_agraph.to_agraph(graph)
-
-    # Set node attributes to color visited nodes and current node
-    for node in graph.nodes():
-        if node in visited_nodes:
-            A.get_node(node).attr['color'] = 'black'
-            A.get_node(node).attr['style'] = 'filled'
-            A.get_node(node).attr['fillcolor'] = 'green'
-        else:
-            A.get_node(node).attr['color'] = 'yellow'
-            A.get_node(node).attr['penwidth'] = 2.5
-
-    # Color the edge from previous node to current node
-    if previous_node is not None and current_node is not None:
-        if graph.has_edge(previous_node, current_node):
-            A.get_edge(previous_node, current_node).attr['color'] = 'blue'
-
-    # Display weights if enabled
-    if show_weights:
-        for u, v, data in graph.edges(data=True):
-            weight = data.get('weight', 1.0)  # Default weight if not present
-            A.get_edge(u, v).attr['label'] = str(weight)
-
-    # Set title and size
-    if show_steps:
-        A.graph_attr['label'] = f"Step {depth}: Current Node {current_node} (DFS)"
-        A.graph_attr['labelloc'] = 'top'
-    A.graph_attr['size'] = size  
-    A.graph_attr['dpi'] = "300"
-
-    # Save the graph to a temporary file
-    temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-    A.draw(temp_file.name, format="png", prog="dot")
-
-    return temp_file.name
-
-def create_graph_frame_bfs(graph, visited_nodes, current_node, depth, show_steps, show_weights, size="5,5"):
-    A = nx.nx_agraph.to_agraph(graph)
-
-    # Set node attributes to color visited nodes and current node
-    for node in graph.nodes():
-        if node in visited_nodes:
-            A.get_node(node).attr['color'] = 'black'
-            A.get_node(node).attr['style'] = 'filled'
-            A.get_node(node).attr['fillcolor'] = 'green'
-        else:
-            A.get_node(node).attr['color'] = 'yellow'
-            A.get_node(node).attr['penwidth'] = 2.5
-
-    # In BFS, the current node can represent the node being processed at the current level
-    if current_node is not None:
-        A.get_node(current_node).attr['color'] = 'blue'
-        A.get_node(current_node).attr['style'] = 'filled'
-
-    # Display weights if enabled
-    if show_weights:
-        for u, v, data in graph.edges(data=True):
-            weight = data.get('weight', 1.0)
-            A.get_edge(u, v).attr['label'] = str(weight)
-
-    # Set title and size
-    if show_steps:
-        A.graph_attr['label'] = f"Step {depth}: Current Node {current_node} (BFS)"
-        A.graph_attr['labelloc'] = 'top'
-    A.graph_attr['size'] = size  
-    A.graph_attr['dpi'] = "300"
-
-    # Save the graph to a temporary file
-    temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-    A.draw(temp_file.name, format="png", prog="dot")
-
-    return temp_file.name
-
-
-def create_graph_frame_matrix(graph, visited_nodes, current_node, depth, show_steps,show_weights,size="5,5"):
-    # Create a pygraphviz AGraph object from the NetworkX graph
-    A = nx.nx_agraph.to_agraph(graph)
-
-    # Set node attributes to color visited nodes differently
-    #color visited nodes
-    last_visited_node = None  # Initialize a variable to track the last visited node
-    for node in graph.nodes():
-        if node in visited_nodes:
-            A.get_node(node).attr['color'] = 'black'
-            A.get_node(node).attr['style'] = 'filled'
-            A.get_node(node).attr['fillcolor'] = 'green'
-            
-            # Color the edge from the last visited node to the current node
-            #if last_visited_node is not None:
-             #   A.get_edge(last_visited_node, node).attr['color'] = 'blue'  # Change to desired color for the connecting edge
-            
-            #last_visited_node = node  # Update the last visited node
-        else:
-            A.get_node(node).attr['color'] = 'yellow'
-            A.get_node(node).attr['penwidth'] = 2.5
-    
-    if show_weights=="True":
-        adjacency_matrix = nx.to_numpy_array(graph) 
-        for i in range(len(adjacency_matrix)):
-            for j in range(len(adjacency_matrix)):
-                # Check for valid weights (not zero or excessively large values)
-                if i != j and adjacency_matrix[i][j] != 0 and adjacency_matrix[i][j] != 100:
-                    edge_label = str(adjacency_matrix[i][j])
-                    weight = float(adjacency_matrix[i][j])
-                    node1 = list(graph.nodes())[i]
-                    node2 = list(graph.nodes())[j]
-                    A.add_edge(node1, node2, label=edge_label, weight=weight)
-    else:
-        pass
-    # Set title to indicate the current depth and node
-    if show_steps==True:
-        A.graph_attr['label'] = f"Step {depth}: Current Node {current_node}"
-        A.graph_attr['labelloc'] = 'top'
-    else:
-        pass
-    # Set the size of the graph image
-    A.graph_attr['size'] = size  
-    A.graph_attr['dpi'] = "300"  
-
-    # Save the graph to a temporary file
-    temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-    A.draw(temp_file.name, format="png", prog="dot")  # Use 'dot' or another layout engine like 'circo', 'neato'
-
-    return temp_file.name '''
-"""THIS SECTION CONTAINS THE FUNCTIONS TO GENERATE VIDEO FROM A MATRIX"""
-
-"""def generate_frames_bfs_from_matrix(matrix, start_node, show_steps, show_weights,directed, size="5,5"):
-    # If matrix is passed, convert to a graph using networkx
-    if isinstance(matrix, np.ndarray):  # Check if the input is still a matrix
-        #G = nx.from_numpy_array(matrix)
-        if directed=="True":
-            G = nx.from_numpy_array(matrix, create_using=nx.DiGraph())  # Use DiGraph for directed graphs
-        else:
-            G = nx.from_numpy_array(matrix)
-    else:
-        G = matrix  # If it's already a graph, just use it directly
-
-    # Convert the NetworkX graph to a PyGraphviz graph
-    A = nx.nx_agraph.to_agraph(G)
-
-    # Get BFS traversal order
-    bfs_edges = list(nx.bfs_edges(G, source=start_node))  # List of edges traversed in BFS
-    bfs_nodes = list(nx.bfs_tree(G, source=start_node).nodes)  # List of nodes in BFS order
-
-    # List to store frames for the animation
-    frames = []
-
-    # Create the animation by incrementally highlighting nodes and edges
-    for i in range(1, len(bfs_nodes) + 1):
-        # Create a new AGraph object for each frame
-        A_temp = A.copy()
-
-        # Highlight nodes in BFS order
-        nodes_to_highlight = bfs_nodes[:i]
-        for node in nodes_to_highlight:
-            A_temp.get_node(node).attr['color'] = 'red'
-            A_temp.get_node(node).attr['style'] = 'filled'
-            A_temp.get_node(node).attr['fillcolor'] = 'red'
-
-        # Highlight edges in BFS order
-        edges_to_highlight = bfs_edges[:i-1]  # Highlight edges based on BFS progression
-        for edge in edges_to_highlight:
-            A_temp.get_edge(edge[0], edge[1]).attr['color'] = 'blue'
-            A_temp.get_edge(edge[0], edge[1]).attr['penwidth'] = 2.5
-
-        # Optionally set the graph title to indicate the current step and node
-        if show_steps=="True":
-            A_temp.graph_attr['label'] = f"Step {i}: Current Node {bfs_nodes[i-1]} (BFS)"
-            A_temp.graph_attr['labelloc'] = 'top'
-        else:
-            pass
-
-        # Optionally display weights
-        if show_weights=="True":
-            for u, v, data in G.edges(data=True):
-                weight = data.get('weight', 1.0)  # Default weight if not present
-                A_temp.get_edge(u, v).attr['label'] = str(weight)
-        else:
-            pass
-
-        # Set the size of the graph image
-        A_temp.graph_attr['size'] = size
-        A_temp.graph_attr['dpi'] = "300"
-
-        # Save the graph to a temporary file
-        temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-        A_temp.draw(temp_file.name, format="png", prog="dot")
-
-        # Add the temporary file path to the frames list
-        frames.append(temp_file.name)
-
-    return frames"""
 
 def generate_frames_bfs_from_matrix(matrix, start_node, show_steps, show_weights, directed,error_chance, size="5,5"):
     # If matrix is passed, convert to a graph using networkx
@@ -265,7 +40,6 @@ def generate_frames_bfs_from_matrix(matrix, start_node, show_steps, show_weights
     # Get BFS traversal order using a custom BFS to introduce errors
     bfs_edges, bfs_nodes = custom_bfs_with_errors(G, start_node, error_chance)
 
-    print(f"BFS Traversal Nodes (with error_chance={error_chance}): {bfs_nodes}")  # Debug output
 
     # List to store frames for the animation
     frames = []
@@ -336,12 +110,10 @@ def custom_bfs_with_errors(G, start_node, error_chance):
         if error_chance == "True":
             if random.random() < 0.5 and neighbors:  # 50% chance to skip a node (if there are any neighbors)
                 skipped_node = random.choice(neighbors)
-                print(f"Skipping Node: {skipped_node}")
                 neighbors.remove(skipped_node)  # Remove the skipped node from neighbors
 
             if random.random() < 0.5 and len(visited) > 1:  # 50% chance to backtrack to a previous node
                 backtrack_node = random.choice(list(visited))
-                print(f"Backtracking to Node: {backtrack_node}")
                 neighbors = [backtrack_node]  # Force backtrack to a previously visited node
 
             random.shuffle(neighbors)  # Shuffle neighbors to introduce randomness in traversal order
@@ -354,74 +126,7 @@ def custom_bfs_with_errors(G, start_node, error_chance):
                 bfs_edges.append((node, neighbor))  # Record the edge visited
 
     return bfs_edges, bfs_nodes
-"""
-def generate_frames_dfs_from_matrix(matrix, start_node, show_steps, show_weights, directed,size="5,5"):
-    # If matrix is passed, convert to a graph using networkx
-    if isinstance(matrix, np.ndarray):  # Check if the input is still a matrix
-        #G = nx.from_numpy_array(matrix)
-        if directed=="True":
-            G = nx.from_numpy_array(matrix, create_using=nx.DiGraph())  # Use DiGraph for directed graphs
-        else:
-            G = nx.from_numpy_array(matrix)
-    else:
-        G = matrix  # If it's already a graph, just use it directly
 
-    # Convert the NetworkX graph to a PyGraphviz graph
-    A = nx.nx_agraph.to_agraph(G)
-
-    # Get DFS traversal order
-    dfs_edges = list(nx.dfs_edges(G, source=start_node))  # List of edges traversed in DFS
-    dfs_nodes = list(nx.dfs_preorder_nodes(G, source=start_node))  # List of nodes in DFS order
-
-    # List to store frames for the animation
-    frames = []
-
-    # Create the animation by incrementally highlighting nodes and edges
-    for i in range(1, len(dfs_nodes) + 1):
-        # Create a new AGraph object for each frame
-        A_temp = A.copy()
-
-        # Highlight nodes in DFS order
-        nodes_to_highlight = dfs_nodes[:i]
-        for node in nodes_to_highlight:
-            A_temp.get_node(node).attr['color'] = 'red'
-            A_temp.get_node(node).attr['style'] = 'filled'
-            A_temp.get_node(node).attr['fillcolor'] = 'red'
-
-        # Highlight edges in DFS order
-        edges_to_highlight = dfs_edges[:i-1]  # Highlight edges based on DFS progression
-        for edge in edges_to_highlight:
-            A_temp.get_edge(edge[0], edge[1]).attr['color'] = 'blue'
-            A_temp.get_edge(edge[0], edge[1]).attr['penwidth'] = 2.5
-
-        # Optionally set the graph title to indicate the current step and node
-        if show_steps=="True":
-            A_temp.graph_attr['label'] = f"Step {i}: Current Node {dfs_nodes[i-1]} (DFS)"
-            A_temp.graph_attr['labelloc'] = 'top'
-        else: 
-            pass
-
-        # Optionally display weights
-        if show_weights=="True":
-            for u, v, data in G.edges(data=True):
-                weight = data.get('weight', 1.0)  # Default weight if not present
-                A_temp.get_edge(u, v).attr['label'] = str(weight)
-        else:
-            pass
-
-        # Set the size of the graph image
-        A_temp.graph_attr['size'] = size
-        A_temp.graph_attr['dpi'] = "300"
-
-        # Save the graph to a temporary file
-        temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-        A_temp.draw(temp_file.name, format="png", prog="dot")
-
-        # Add the temporary file path to the frames list
-        frames.append(temp_file.name)
-
-    return frames
-"""
 
 def generate_frames_dfs_from_matrix(matrix, start_node, show_steps, show_weights, directed, error_chance,size="5,5"):
     # If matrix is passed, convert to a graph using networkx
@@ -439,7 +144,6 @@ def generate_frames_dfs_from_matrix(matrix, start_node, show_steps, show_weights
     # Get DFS traversal order using a custom DFS to introduce errors
     dfs_nodes, dfs_edges = custom_dfs_with_errors(G, start_node, error_chance)
 
-    print(f"DFS Traversal Nodes (with error_chance={error_chance}): {dfs_nodes}")  # Debug output
 
     # List to store frames for the animation
     frames = []
@@ -506,13 +210,11 @@ def custom_dfs_with_errors(G, start_node, error_chance):
             if random.random() < 0.1:  # 50% chance to skip a node for testing
                 # Randomly skip a node and continue traversal
                 skipped_node = random.choice(neighbors)
-                print(f"Skipping Node: {skipped_node}")
                 neighbors.remove(skipped_node)  # Remove the skipped node from neighbors
 
             if random.random() < 0.5:  # 50% chance to force backtracking to a previous node
                 if len(visited) > 1:  # Can only backtrack if we've already visited at least one node
                     backtrack_node = random.choice(list(visited))
-                    print(f"Backtracking to Node: {backtrack_node}")
                     neighbors = [backtrack_node]  # Force backtrack to a previously visited node
 
             random.shuffle(neighbors)  # Shuffle neighbors to introduce randomness in traversal order

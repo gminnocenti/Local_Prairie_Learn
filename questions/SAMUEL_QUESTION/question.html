@@ -1,0 +1,15 @@
+<pl-question-panel>
+  <p>Enter the step number where Dijkstra's first makes a mistake. Enter "0" if there was no error.</p>
+    <pl-graph-animate params-type="dotty" params-name="dotty-commands-dictionary" frame-duration="2"></pl-graph-animate>
+
+
+  <tt>step =</tt> <input name="step" type="text" width="50" value="{{submitted_answers.step}}">
+  <p class="text-danger">{{format_errors.step}}</p>
+</pl-question-panel>
+
+
+
+<pl-submission-panel>
+  <p><tt>step = </tt> {{submitted_answers.step}}</p>
+  <p>{{feedback.step}}</p>
+</pl-submission-panel>

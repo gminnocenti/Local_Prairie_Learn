@@ -1,0 +1,70 @@
+<!-- question.html -->
+ <pl-question-panel>
+    <h1>Understanding Backtracking in Depth-First Search (DFS)</h1>
+    <p>
+        In Depth-First Search (DFS), <strong>backtracking</strong> is a key part of how we explore 
+        all paths in a graph. DFS is designed to go as deep as possible along one path, moving from 
+        node to node until it reaches a point where it can’t go further. When there are no new nodes 
+        left to explore on a path, DFS “backtracks” to the previous node to see if there’s another path 
+        it hasn’t explored yet.
+    </p>
+    <p>
+        Imagine walking down a long hallway with many doors. You open each door you find, and keep 
+        going down any hallway behind each door as far as you can. When you reach a dead end, you go back 
+        to the last door you didn’t open, exploring down that path. This “backtracking” approach allows 
+        DFS to fully explore each branch before moving on, ensuring that no paths are missed.
+    </p>
+    <p>
+        Backtracking is essential in DFS because it ensures that <strong>all possible paths</strong> from 
+        the starting point are explored. It’s different from other search methods that explore level by level. 
+        DFS dives deep first and only returns (or “backtracks”) when it needs to explore other branches.
+    </p>
+    <h4>DFS Traversal Explanation</h4>
+    <p>
+        In Depth-First Search (DFS), we start at the initial node (Node 0) and explore as far along 
+        each path as possible before backtracking. The traversal order for this DFS execution is 
+        <strong>[0, 1, 3, 5, 4, 2, 6]</strong>, which reflects how DFS fully explores each branch before moving to the next.
+    </p>
+    <ul>
+        <li><strong>Starting at Node 0</strong>: DFS begins at Node 0 and chooses the smallest numbered connected node, which is <strong>Node 1</strong>.</li>
+        <li><strong>Exploring Node 1</strong>: From Node 1, DFS dives further into its branch, going to <strong>Node 3</strong>.</li>
+        <li><strong>Reaching Node 3</strong>: Continuing down this path, DFS visits <strong>Node 5</strong> (the only connected node from Node 3).</li>
+        <li><strong>Backtracking to Node 1</strong>: After reaching Node 5 with no further connections, DFS backtracks to <strong>Node 1</strong> to explore any remaining nodes.</li>
+        <li><strong>Visiting Node 4</strong>: DFS then explores the next branch of Node 1 by visiting <strong>Node 4</strong>.</li>
+        <li><strong>Backtracking to Node 0</strong>: With Node 1 fully explored, DFS backtracks to <strong>Node 0</strong> and moves to the next branch by visiting <strong>Node 2</strong>.</li>
+        <li><strong>Exploring Node 2</strong>: From Node 2, DFS visits its connected node, <strong>Node 6</strong>, completing the traversal.</li>
+    </ul>
+    <p>
+        This order ensures that DFS explores each path to its end before returning to previous nodes to check for other unexplored paths. 
+        The traversal stops only once all nodes have been visited. This depth-first approach is distinct from breadth-first search, 
+        as DFS prioritizes going deeper into each branch before backtracking.
+    </p>
+
+    <pl-graph-animate params-type="dotty" params-name="dotty-commands-dictionary" frame-duration=2 ></pl-graph-animate>
+    
+    <h2>Incorrect DFS Execution</h2>
+    <p>
+        The following video shows an <strong>incorrect execution</strong> of 
+        Depth-First Search (DFS) on a <strong>different graph.</strong> In DFS, the algorithm 
+        should go as far as possible down each path before <strong>backtracking</strong> to explore 
+        other branches. DFS explores deeply before returning to the previous node only when necessary.
+    </p>
+    <p>
+        In a correct DFS, this deep exploration ensures that each branch is fully explored 
+        before moving back to cover other paths. As you watch the video, pay close attention 
+        to where the algorithm <strong>deviates from this depth-first approach</strong>, particularly 
+        in moments where it should backtrack but instead moves prematurely to another branch.
+    </p>
+    
+<pl-graph-animate params-type="dotty" params-name="dotty-commands-dictionary2" frame-duration=2 ></pl-graph-animate>
+<h4>After reviewing the incorrect execution of Depth-First Search (DFS), identify the first step that was wrongly executed. What was the mistake, and why does it violate the DFS approach?</h4>
+<p> </p>
+<pl-multiple-choice answers-name="acc" weight="1">
+    <pl-answer correct="true">Step 6: The algorithm backtracked to Node 0 and expanded Node 3 before fully exploring Node 5. This violates the DFS principle, as DFS should finish exploring a branch completely before moving to a different branch.</pl-answer>
+    <pl-answer correct="false">Step 4: The algorithm incorrectly revisited Node 1 after visiting Node 2, breaking the DFS approach by creating unnecessary redundancy.</pl-answer>
+    <pl-answer correct="false">Step 5: The algorithm visited Node 5 from Node 2 before Node 3, which is out of order for DFS.</pl-answer>
+    <pl-answer correct="false">Step 7: Node 6 was visited after revisiting Node 5, which violates DFS’s single-visit rule by revisiting nodes unnecessarily.</pl-answer>
+  </pl-multiple-choice>
+
+
+</pl-question-panel>

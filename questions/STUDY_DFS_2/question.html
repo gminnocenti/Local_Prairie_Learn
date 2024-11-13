@@ -1,0 +1,41 @@
+<!-- question.html -->
+ <pl-question-panel>
+    <h1>Criteria for Choosing Which Node to Expand in DFS</h1>
+    <p>
+        In Depth-First Search (DFS), when multiple nodes are connected to the same origin node, 
+        there must be a consistent way to choose which node to expand first. In this case, we will 
+        always choose to expand the node with the <strong>smallest number</strong>. 
+    </p>
+    <p>
+        This rule ensures a predictable path of exploration. By selecting the <strong>node with the smallest number</strong> 
+        first, DFS will explore nodes in a consistent and orderly manner, reducing ambiguity in the traversal process.
+    </p>
+    <p>
+        This choice of prioritizing the node with the <strong>smallest number</strong> is important, as it keeps the search process structured, 
+        especially when different paths are available from the same node. This approach allows DFS to explore each branch fully 
+        while adhering to a clear, ordered pattern.
+    </p>
+    <pl-graph-animate params-type="dotty" params-name="dotty-commands-dictionary" frame-duration=2 ></pl-graph-animate>
+    
+    <h2>Observe the Incorrect Execution of DFS</h2>
+    <p>
+        In the following video, you will see Depth-First Search (DFS) being executed <strong>incorrectly</strong> on the same graph. 
+        Please watch carefully and identify where the algorithm deviates from the correct process.
+    </p>
+    <p>
+        Look for the step or steps that weren’t performed as expected, focusing on whether DFS correctly explores one path fully 
+        before backtracking to explore other paths.
+    </p>
+    
+<pl-graph-animate params-type="dotty" params-name="dotty-commands-dictionary2" frame-duration=2 ></pl-graph-animate>
+<h4>After reviewing the incorrect execution of Depth-First Search (DFS), identify the first step that was wrongly executed. What was the mistake, and why does it violate the DFS approach?</h4>
+<p> </p>
+<pl-multiple-choice answers-name="acc" weight="1">
+    <pl-answer correct="true">Step 4: The algorithm incorrectly backtracked from Node 3 all the way to Node 0 instead of continuing with Node 4 from Node 1. This violates DFS, which requires exploring as far along each branch as possible before backtracking.</pl-answer>
+    <pl-answer correct="false">Step 3: Node 3 was revisited after visiting Node 1, creating unnecessary redundancy and breaking the DFS rule of visiting nodes only once.    </pl-answer>
+    <pl-answer correct="false">Step 5: The algorithm returned to Node 2 after reaching Node 4, breaking the DFS depth-first path by revisiting nodes already explored.</pl-answer>
+    <pl-answer correct="false">Step 2: Node 1 was revisited after Node 3, disrupting DFS’s depth-first approach by incorrectly backtracking within the same branch.</pl-answer>
+  </pl-multiple-choice>
+
+
+</pl-question-panel>

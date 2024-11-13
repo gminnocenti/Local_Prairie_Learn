@@ -1,0 +1,9 @@
+{
+    "uuid": "6389ced5-6f03-47ca-887f-bd854bc0637e",
+    "longName": "New (4)",
+    "allowAccess": [
+        {
+            "startDate": "2024-11-12T00:00:01",
+            "endDate": "2024-12-30T23:59:59"
+        }]
+}
