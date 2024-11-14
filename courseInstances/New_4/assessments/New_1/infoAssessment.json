@@ -24,10 +24,11 @@
   "title": "BFS and DFS Comprehension",
   "comment": " ",
   "questions": [
-    {"id": "STUDY_BOTH_BFS_DFS_1", "autoPoints": 1},
-    {"id": "STUDY_BOTH_BFS_DFS_2", "autoPoints": 1},
     {"id": "STUDY_PREDICT_NEXT_STEP_BFS", "autoPoints": 1},
-    {"id": "STUDY_PREDICT_NEXT_STEP_DFS", "autoPoints": 1}
+    {"id": "STUDY_PREDICT_NEXT_STEP_DFS", "autoPoints": 1},
+    {"id": "STUDY_BOTH_BFS_DFS_1", "autoPoints": 1},
+    {"id": "STUDY_BOTH_BFS_DFS_2", "autoPoints": 1}
+
   ]
 }]
 }

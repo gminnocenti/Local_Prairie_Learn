@@ -1,6 +1,6 @@
 {
     "uuid": "028AFD4D-8A48-4839-9086-DE3B859F8A51",
-    "title": "STUDY_QUESTION_3_BFS",
+    "title":  "Introduction Breath First Search",
     "topic": "Graphs",
     "tags": ["mwest", "tpl101", "v3"],
     "type": "v3",

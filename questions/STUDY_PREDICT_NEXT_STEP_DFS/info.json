@@ -1,6 +1,6 @@
 {
     "uuid": "4409C9FC-A6EC-4D6A-9AB0-BFDD0968209B",
-    "title": "STUDY_PREDICT_NEXT_STEP_1",
+    "title":  "Predict Next Node to Execute",
     "topic": "Graphs",
     "tags": ["mwest", "tpl101", "v3"],
     "type": "v3",
