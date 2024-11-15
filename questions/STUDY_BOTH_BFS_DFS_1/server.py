@@ -7,7 +7,7 @@ def generate(data):
     bfs_dot_commands = {
     "step_1": """
     digraph G {
-        label="Step 1: Start BFS at Node 0";
+        label="Step 1: Visit Node 0 from Node 0";
         labelloc="top";
         0 [style=filled, fillcolor=red];
         0 -> 1 [color=black];
