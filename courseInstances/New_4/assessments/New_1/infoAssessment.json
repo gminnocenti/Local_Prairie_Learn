@@ -1,8 +1,8 @@
 {
   "uuid": "a6dadd1b-1552-4813-9cae-10b783f237d1",
-  "type": "Exam",
+  "type": "Homework",
   "title": "study 1",
-  "set": "Exam",
+  "set": "Homework",
   "number": "1",
   "allowAccess": [        {
     "startDate": "2024-11-12T00:00:01",
