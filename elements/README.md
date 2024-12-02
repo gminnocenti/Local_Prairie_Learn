@@ -438,3 +438,7 @@ def generate(data):
 <img src="image-7.png" alt="DOT Command Dictionary  Example Question 2 Second Step " width="300">
 <br>
 
+## In Progress Slide Deck
+
+[Visit In Progess Slide Deck](https://docs.google.com/presentation/d/1qMkW-BQKuhayqNWqHWOSn7RjT5ciEZxLgVPL1dVX31Q/edit?usp=sharing
+)
