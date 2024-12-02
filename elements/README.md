@@ -39,13 +39,13 @@ The `pl-graph-animate` element is a powerful tool for creating engaging and visu
 
     **Implementation**
     - `question.html`
-    ```html 
+    ` 
     <pl-graph-animate params-type="adjacency-matrix" params-name="matrix" frame-duration=2 algorithm = "bfs" show-steps=True directed-graph=True show-weights=True>
 
     </pl-graph-animate>
 
     After watching the video, identify which algorithm was used in the graph traversal.
-    ```
+    `
 
 
 ### Custom Frame-Based Animation  
