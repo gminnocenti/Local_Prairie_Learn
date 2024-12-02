@@ -100,7 +100,7 @@ def generate(data):
     data["params"]["matrix"] = pl.to_json(mat)
 ```
 **Question Visualization**
-![alt text](image.png)
+
 ## DOT Command Dictionary  
  Create animations by defining a graph through a python dictionary containing a list of DOT commands. Each step will be a frame in the animation.
  **Parameters**
