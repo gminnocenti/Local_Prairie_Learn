@@ -38,7 +38,9 @@ The `pl-graph-animate` element is a powerful tool for creating engaging and visu
         - `directed-graph = False` (The animation will not  display a directed graph)
 
     **Implementation**
-    - `question.html`
+    - question.html
+        - This example is for a animation with a bfs execution on the with all the possible parameters.
+
 ```html
 <pl-graph-animate 
     params-type="adjacency-matrix" 
@@ -49,8 +51,24 @@ The `pl-graph-animate` element is a powerful tool for creating engaging and visu
     directed-graph="True" 
     show-weights="True">
 </pl-graph-animate>
+```
 
+    - server.py
+        - This is how to properly declare the adjacency matrix in the server.py
 
+```python
+import prairielearn as pl
+import numpy as np
+
+def generate(data):
+    mat=np.array([[0, 1, 0, 1, 0],
+                         [1, 0, 1, 1, 0],
+                         [0, 1, 0, 0, 1],
+                         [1, 1, 0, 0, 0],
+                         [0, 0, 1, 0, 0]])
+
+    data["params"]["matrix"] = pl.to_json(mat)
+```
 ### Custom Frame-Based Animation  
    For users seeking complete control, this method allows you to define animations frame-by-frame using a dictionary of DOT commands. This approach is ideal for creating highly customized or unconventional graph visualizations tailored to specific needs.
 
