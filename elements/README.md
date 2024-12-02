@@ -24,10 +24,25 @@ The `pl-graph-animate` element is a powerful tool for creating engaging and visu
    - `frame-duration` : Declare the time each frame will be shown in the video. Declare time in seconds.
         -   If not declared default value = `2` (seconds)
         -  `frame-duration = 5` 
-   - `show-steps`: This parameter is to provide a title to each frame. This title has the following format: `Step {i}: Current Node {current_node} (algorithm)`. It will be displayed at the top of each image of the animation.
+   - `show-steps`: Provide a title to each frame. This title has the following format: `Step {i}: Current Node {current_node} (algorithm)`. It will be displayed at the top of each image of the animation.
         -   If not declared default value = `True`.
         - `show-steps = True` (Display the title in each image)
         - `show-steps = False` (Will not display the title in each image)
+    - `show-weights`= Display the weights of the edges of the graph.
+        -   If not declared default value = `False`.
+        - `show-weights = True` (Display the weights of the edeges)
+        - `show-weights = False` (Will not display the weights of the edeges)
+    - `directed-graph` : Create a directed graph.
+        -   If not declared default value = `False`.
+        - `directed-graph = True` (The animation will display a directed graph)
+        - `directed-graph = False` (The animation will not  display a directed graph)
+
+    **Implementation**
+    - `question.html`
+    ```html 
+    <pl-graph-animate params-type="dotty" params-name="dotty-commands-dictionary" frame-duration=2 ></pl-graph-animate>
+
+    After watching the video, identify which algorithm was used in the graph traversal. ```
 
 
 ### Custom Frame-Based Animation  
