@@ -28,6 +28,7 @@ The `pl-graph-animate` element is a powerful tool for creating engaging and visu
         -   If not declared default value = `True`.
         - `show-steps = True` (Display the title in each image)
         - `show-steps = False` (Will not display the title in each image)
+    
     - `show-weights`= Display the weights of the edges of the graph.
         -   If not declared default value = `False`.
         - `show-weights = True` (Display the weights of the edeges)
@@ -93,7 +94,7 @@ def generate(data):
 
     data["params"]["matrix"] = pl.to_json(mat)
 ```
-## Custom Frame-Based Animation  
+## DOT Command Dictionary  
  Create animations by defining a graph through a python dictionary containing a list of DOT commands. Each step will be a frame in the animation.
  **Parameters**
  - `params-type="dotty"` : Declare that the input of the animation will be a dictionary with DOT commands.
