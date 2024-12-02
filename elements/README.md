@@ -202,8 +202,216 @@ def generate(data):
 
 
     data["params"]["dotty-commands-dictionary"] = pl.to_json(bfs_dot_commands)
+    
+```
+This example shows how to display more than one animation in a question.
+
+- question.html
+```html
+<!-- question.html -->
+ <pl-question-panel>
+    <h1>What is Breadth-First Search (BFS)?</h1>
+    <p>
+        Breadth-First Search, or BFS, is a way of exploring a graph <strong>level by level</strong>. 
+        Imagine the graph as a set of connected points, called "nodes." BFS starts from a chosen 
+        starting node and explores all nodes directly connected to it first—these make up the 
+        <strong>first level</strong>. After exploring the first level, BFS moves to the 
+        <strong>second level</strong>, where it visits each node connected to the first level nodes, 
+        and so on.
+    </p>
+    <p>
+        This level-by-level approach continues until all nodes connected to the starting point 
+        have been explored. By visiting nodes in this order, BFS spreads out evenly across the graph, 
+        exploring each level fully before moving to the next.
+<pl-graph-animate params-type="dotty" params-name="dotty-commands-dictionary" frame-duration=2 ></pl-graph-animate>
+<h2>Observe the Incorrect Execution of BFS</h2>
+<p>
+    In the following video, you will see Breadth-First Search (BFS) being executed <strong>incorrectly</strong> on the same graph. 
+    Please watch carefully and identify where the algorithm deviates from the correct process.
+</p>
+<p>
+    Look for the step or steps that weren’t performed as expected, paying special attention to the 
+    <strong>level-by-level order</strong> in which nodes should be visited.
+</p>
+<pl-graph-animate params-type="dotty" params-name="dotty-commands-dictionary2" frame-duration=2 ></pl-graph-animate>
+<h4>After reviewing the incorrect execution of Breadth-First Search (BFS), identify the first step that was wrongly executed. What was the mistake, and why does it violate the BFS approach?</h4>
+<p> </p>
+<pl-multiple-choice answers-name="acc" weight="1">
+    <pl-answer correct="false">Step 2: Node 1 was revisited unnecessarily, which is not required in BFS.</pl-answer>
+    <pl-answer correct="true">Step 3: Node 3 was visited before Node 2, which goes against BFS’s level-by-level traversal order.</pl-answer>
+    <pl-answer correct="false">Step 5: Node 4 was visited twice, indicating a redundant step in the traversal.</pl-answer>
+    <pl-answer correct="false">Step 4: Node 2 was visited, but it should have been visited immediately after Node 1 to maintain the level order.</pl-answer>
+  </pl-multiple-choice>
+
+
+</pl-question-panel>
 
 
 
 ```
+- server.py
+```python
+import prairielearn as pl
+import numpy as np
 
+def generate(data):
+
+    bfs_wrong_execution_dot_commands = {
+    "step_1": """
+    digraph G {
+        label="Step 1: Visit Node 0 from Node 0";
+        labelloc="top";
+        0 [style=filled, fillcolor=red];
+        subgraph { rank=same; 1; 2; }
+        0 -> 1 [color=black];
+        0 -> 2 [color=black];
+        1 -> 3 [color=black];
+        2 -> 4 [color=black];
+        
+    }
+    """,
+    "step_2": """
+    digraph G {
+        label="Step 2: Visit Node 1 from Node 0";
+        labelloc="top";
+        0 [style=filled, fillcolor=red];
+        1 [style=filled, fillcolor=red];
+        subgraph { rank=same; 1; 2; }
+        0 -> 1 [color=blue];
+        0 -> 2 [color=black];
+        1 -> 3 [color=black];
+        2 -> 4 [color=black];
+        
+    }
+    """,
+    "step_3": """
+    digraph G {
+        label="Step 3: Visit Node 3 from Node 1";
+        labelloc="top";
+        0 [style=filled, fillcolor=red];
+        1 [style=filled, fillcolor=red];
+        3 [style=filled, fillcolor=red];
+        subgraph { rank=same; 1; 2; }
+        0 -> 1 [color=blue];
+        0 -> 2 [color=black];
+        1 -> 3 [color=blue];
+        2 -> 4 [color=black];
+        
+    }
+    """,
+
+    "step_4": """
+    digraph G {
+        label="Step 4: Visit Node 2 from Node 0";
+        labelloc="top";
+        0 [style=filled, fillcolor=red];
+        1 [style=filled, fillcolor=red];
+        2 [style=filled, fillcolor=red];
+        3 [style=filled, fillcolor=red];
+        subgraph { rank=same; 1; 2; }
+        0 -> 1 [color=blue];
+        0 -> 2 [color=blue];
+        1 -> 3 [color=blue];
+        2 -> 4 [color=black];
+        
+    }
+    """,
+    "step_5": """
+    digraph G {
+        label="Step 5: Visit Node 4 from Node 2";
+        labelloc="top";
+        0 [style=filled, fillcolor=red];
+        1 [style=filled, fillcolor=red];
+        2 [style=filled, fillcolor=red];
+        3 [style=filled, fillcolor=red];
+        4 [style=filled, fillcolor=red];
+        subgraph { rank=same; 1; 2; }
+        0 -> 1 [color=blue];
+        0 -> 2 [color=blue];
+        1 -> 3 [color=blue];
+        
+        2 -> 4 [color=blue];
+    }
+    """
+}
+
+    bfs_dot_commands = {
+    "step_1": """
+    digraph G {
+        label="Step 1: Visit Node 0 from Node 0";
+        labelloc="top";
+        0 [style=filled, fillcolor=red];
+        0 -> 1 [color=black];
+        0 -> 2 [color=black];
+        1 -> 3 [color=black];
+        2 -> 4 [color=black];
+        
+    }
+    """,
+    "step_2": """
+    digraph G {
+        label="Step 2: Visit Node 1 from Node 0";
+        labelloc="top";
+        0 [style=filled, fillcolor=red];
+        1 [style=filled, fillcolor=red];
+        0 -> 1 [color=blue];
+        0 -> 2 [color=black];
+        1 -> 3 [color=black];
+        2 -> 4 [color=black];
+        
+    }
+    """,
+    "step_3": """
+    digraph G {
+        label="Step 3: Visit Node 2 from Node 0";
+        labelloc="top";
+        0 [style=filled, fillcolor=red];
+        1 [style=filled, fillcolor=red];
+        2 [style=filled, fillcolor=red];
+        0 -> 1 [color=blue];
+        0 -> 2 [color=blue];
+        1 -> 3 [color=black];
+        2 -> 4 [color=black];
+        
+    }
+    """,
+    "step_4": """
+    digraph G {
+        label="Step 4: Visit Node 3 from Node 1";
+        labelloc="top";
+        0 [style=filled, fillcolor=red];
+        1 [style=filled, fillcolor=red];
+        2 [style=filled, fillcolor=red];
+        3 [style=filled, fillcolor=red];
+        0 -> 1 [color=blue];
+        0 -> 2 [color=blue];
+        1 -> 3 [color=blue];
+        2 -> 4 [color=black];
+        
+    }
+    """,
+    "step_5": """
+    digraph G {
+        label="Step 5: Visit Node 4 from Node 2";
+        labelloc="top";
+        0 [style=filled, fillcolor=red];
+        1 [style=filled, fillcolor=red];
+        2 [style=filled, fillcolor=red];
+        3 [style=filled, fillcolor=red];
+        4 [style=filled, fillcolor=red];
+        0 -> 1 [color=blue];
+        0 -> 2 [color=blue];
+        1 -> 3 [color=blue];
+        
+        2 -> 4 [color=blue];
+    }
+    """
+}
+
+    data["params"]["dotty-commands-dictionary"] = pl.to_json(bfs_dot_commands)
+
+    data["params"]["dotty-commands-dictionary2"] = pl.to_json(bfs_wrong_execution_dot_commands)
+
+
+    
+```
