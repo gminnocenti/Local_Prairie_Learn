@@ -6,7 +6,7 @@ The `pl-graph-animate` element is a powerful tool for creating engaging and visu
 
 `pl-graph-animate` provides two intuitive methods to generate animations:
 
-### Algorithm-Based Animation: 
+## Algorithm-Based Animation: 
    Create animations by defining a graph through its adjacency matrix and specifying an algorithm to execute. Currently supported algorithms include:
    - Breadth-First Search (BFS)
    - Depth-First Search (DFS)
@@ -38,8 +38,9 @@ The `pl-graph-animate` element is a powerful tool for creating engaging and visu
         - `directed-graph = False` (The animation will not  display a directed graph)
 
 **Implementation**
+This example is for a animation with a bfs execution on the with all the possible parameters.
 - question.html
-    - This example is for a animation with a bfs execution on the with all the possible parameters.
+    
 
 ```html
 <pl-graph-animate 
@@ -69,6 +70,29 @@ def generate(data):
 
     data["params"]["matrix"] = pl.to_json(mat)
 ```
-### Custom Frame-Based Animation  
+This example is for a animation with a the minimum amount of necessary parameters to create a animation.
+```html
+<pl-graph-animate 
+    params-name="matrix" 
+    algorithm="bfs"> 
+</pl-graph-animate>
+```
+- server.py
+    - This is how to properly declare the adjacency matrix in the server.py
+
+```python
+import prairielearn as pl
+import numpy as np
+
+def generate(data):
+    mat=np.array([[0, 1, 0, 1, 0],
+                         [1, 0, 1, 1, 0],
+                         [0, 1, 0, 0, 1],
+                         [1, 1, 0, 0, 0],
+                         [0, 0, 1, 0, 0]])
+
+    data["params"]["matrix"] = pl.to_json(mat)
+```
+## Custom Frame-Based Animation  
    For users seeking complete control, this method allows you to define animations frame-by-frame using a dictionary of DOT commands. This approach is ideal for creating highly customized or unconventional graph visualizations tailored to specific needs.
 
