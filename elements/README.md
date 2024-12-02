@@ -76,6 +76,9 @@ def generate(data):
 
     data["params"]["matrix"] = pl.to_json(mat)
 ```
+**PrairieLearn Visualization**
+<img src="image.png" alt="lgorithm-Based Animation DFS Example Question 1 First Step " width="500">
+<img src="image-1.png" alt="lgorithm-Based Animation DFS Example Question 1 Second Step " width="500">
 This example is for a animation with a the minimum amount of necessary parameters to create a animation. This animation will execute the bfs algorithm with a 2 second duration for each frame (step) and will show the title.
 ```html
 <pl-graph-animate 
@@ -99,7 +102,7 @@ def generate(data):
 
     data["params"]["matrix"] = pl.to_json(mat)
 ```
-**Question Visualization**
+**PrairieLearn Visualization**
 
 ## DOT Command Dictionary  
  Create animations by defining a graph through a python dictionary containing a list of DOT commands. Each step will be a frame in the animation.
