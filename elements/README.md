@@ -37,9 +37,9 @@ The `pl-graph-animate` element is a powerful tool for creating engaging and visu
         - `directed-graph = True` (The animation will display a directed graph)
         - `directed-graph = False` (The animation will not  display a directed graph)
 
-    **Implementation**
-    - question.html
-        - This example is for a animation with a bfs execution on the with all the possible parameters.
+**Implementation**
+- question.html
+    - This example is for a animation with a bfs execution on the with all the possible parameters.
 
 ```html
 <pl-graph-animate 
@@ -53,8 +53,8 @@ The `pl-graph-animate` element is a powerful tool for creating engaging and visu
 </pl-graph-animate>
 ```
 
-    - server.py
-        - This is how to properly declare the adjacency matrix in the server.py
+- server.py
+    - This is how to properly declare the adjacency matrix in the server.py
 
 ```python
 import prairielearn as pl
