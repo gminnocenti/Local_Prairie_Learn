@@ -15,28 +15,33 @@ The `pl-graph-animate` element is a powerful tool for creating engaging and visu
    This method automates the animation process, providing a clear visualization of how the selected algorithm traverses or processes the graph.
    
    **Parameters:**
-   -  `params-name="matrix"` : This is the adjacency matrix which will be used to create the graph. The content of the matrix must be declared as a `np.array` in the `server.py` of the question.
-   - `algorithm` : Declare which algorithm you wish to executed in the adjacency matrix. (DFS,BFS,Dijkstras). 
-        -   If not declared default value = `dfs`.
-        - `algorithm = "bfs"`
-        -  `algorithm = "dfs"`
-        -  `algorithm = "dijkstras"`
-   - `frame-duration` : Declare the time each frame will be shown in the video. Declare time in seconds.
-        -   If not declared default value = `2` (seconds)
-        -  `frame-duration = 5` 
-   - `show-steps`: Provide a title to each frame. This title has the following format: `Step {i}: Current Node {current_node} (algorithm)`. It will be displayed at the top of each image of the animation.
-        -   If not declared default value = `True`.
-        - `show-steps = True` (Display the title in each image)
-        - `show-steps = False` (Will not display the title in each image)
-    
-    - `show-weights`:  Display the weights of the edges of the graph.
-        -   If not declared default value = `False`.
-        - `show-weights = True` (Display the weights of the edeges)
-        - `show-weights = False` (Will not display the weights of the edeges)
-    - `directed-graph` : Create a directed graph.
-        -   If not declared default value = `False`.
-        - `directed-graph = True` (The animation will display a directed graph)
-        - `directed-graph = False` (The animation will not  display a directed graph)
+- **`params-name="matrix"`**: This is the adjacency matrix which will be used to create the graph. The content of the matrix must be declared as a `np.array` in the `server.py` of the question.
+- **`algorithm`**: Declare which algorithm you wish to execute in the adjacency matrix. (DFS, BFS, Dijkstra's). 
+    - If not declared, the default value is **`dfs`**.
+    - Examples:
+        - **`algorithm="bfs"`**
+        - **`algorithm="dfs"`**
+        - **`algorithm="dijkstras"`**
+- **`frame-duration`**: Declare the time each frame will be shown in the video (in seconds).
+    - If not declared, the default value is **`2`** (seconds).
+    - Example:
+        - **`frame-duration=5`**
+- **`show-steps`**: Provide a title for each frame. The title has the format: `Step {i}: Current Node {current_node} (algorithm)`. It will be displayed at the top of each frame in the animation.
+    - If not declared, the default value is **`True`**.
+    - Examples:
+        - **`show-steps=True`** (Display the title in each frame)
+        - **`show-steps=False`** (No title displayed)
+- **`show-weights`**: Display the weights of the edges in the graph.
+    - If not declared, the default value is **`False`**.
+    - Examples:
+        - **`show-weights=True`** (Display the weights of the edges)
+        - **`show-weights=False`** (Do not display the weights)
+- **`directed-graph`**: Create a directed graph.
+    - If not declared, the default value is **`False`**.
+    - Examples:
+        - **`directed-graph=True`** (The animation will display a directed graph)
+        - **`directed-graph=False`** (The animation will not display a directed graph)
+
 
 **Implementation**
 This example is for a animation with a bfs execution on the with all the possible parameters.
