@@ -29,7 +29,7 @@ The `pl-graph-animate` element is a powerful tool for creating engaging and visu
         - `show-steps = True` (Display the title in each image)
         - `show-steps = False` (Will not display the title in each image)
     
-    - `show-weights`= Display the weights of the edges of the graph.
+    - `show-weights`:  Display the weights of the edges of the graph.
         -   If not declared default value = `False`.
         - `show-weights = True` (Display the weights of the edeges)
         - `show-weights = False` (Will not display the weights of the edeges)
