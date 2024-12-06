@@ -56,7 +56,7 @@ This example is for a animation with a bfs execution on the with all the possibl
     algorithm="bfs" 
     show-steps="True" 
     directed-graph="True" 
-    show-weights="True">
+    >
 </pl-graph-animate>
 ```
 
